@@ -1,6 +1,6 @@
 const Comment = require('../models/Comment')
 
-const addComment = async (req, res) => {
+const addComment = async (req, res, next) => {
     try{
         const {body} = req.body;
         const newComment = new Comment({issue: req.params.id, author: req.user._id, body: body})
@@ -8,22 +8,22 @@ const addComment = async (req, res) => {
         return res.status(201).json(newComment)
     }
     catch(error){
-        return res.status(500).json({message: error.message})
+        next(error)
     }
 }
 
-const getCommentsByIssue = async (req, res) => {
+const getCommentsByIssue = async (req, res, next) => {
     try{
         const Comments = await Comment.find({issue: req.params.id})  
         if(Comments.length == 0) return res.status(404).json({message: 'No Comment Found'})
         return res.status(200).json(Comments)
     }
     catch(error){
-        return res.status(500).json({message: error.message})
+        next(error)
     }
 }
 
-const deleteComment = async (req, res) => {
+const deleteComment = async (req, res, next) => {
     try{
         const commentToDelete = await Comment.findById(req.params.id)
         if(!commentToDelete) return res.status(404).json({message: 'comment not found'})
@@ -32,7 +32,7 @@ const deleteComment = async (req, res) => {
         return res.status(200).json({message: 'Comment deleted Successfuly'})
     }
     catch(error){
-        return res.status(500).json({message: error.message})
+        next(error)
     }
 }
 

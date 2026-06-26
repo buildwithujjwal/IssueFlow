@@ -1,7 +1,6 @@
 const Issue = require('../models/Issue')
-const { findByIdAndDelete } = require('../models/User')
 
-const createIssue = async (req, res) => {
+const createIssue = async (req, res, next) => {
     try{
         const {title, description, assignedTo} = req.body
         const newIssue = new Issue({title, description, project: req.params.id, createdBy: req.user._id, assignedTo})
@@ -9,11 +8,11 @@ const createIssue = async (req, res) => {
         return res.status(201).json(newIssue)
     }
     catch(error){
-        return res.status(500).json({ message: error.message })
+        next(error)
     }
 }
 
-const getIssuesByProject = async (req, res) => {
+const getIssuesByProject = async (req, res, next) => {
     try{
 
         // filtering by which project, status, priority and by search also
@@ -28,11 +27,11 @@ const getIssuesByProject = async (req, res) => {
         return res.status(200).json(issues)
     }
     catch(error){
-        return res.status(500).json({ message: error.message })
+        next(error)
     }
 }
 
-const updateIssue = async (req, res) => {
+const updateIssue = async (req, res, next) => {
     try{
         const {title, description, assignedTo, status, priority} = req.body
         
@@ -41,17 +40,17 @@ const updateIssue = async (req, res) => {
         return res.status(200).json({message: 'Issue seccussfuly Updated'})
     }
     catch(error){
-        return res.status(500).json({ message: error.message })
+        next(error)
     }
 }
 
-const deleteIssue = async (req, res) => {
+const deleteIssue = async (req, res, next) => {
     try{
         if(! await Issue.findByIdAndDelete(req.params.id)) return res.status(404).json({message: 'Issue Not Found'})
         return res.status(200).json({ message: 'Issue successfuly deleted'})
     }
     catch(error){
-        return res.status(500).json({ message: error.message })
+        next(error)
     }
 }
 

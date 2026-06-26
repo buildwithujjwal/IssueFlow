@@ -5,6 +5,7 @@
     const projectRoutes = require('./src/routes/projectRoutes')
     const issueRoutes = require('./src/routes/issueRoutes')
     const commentRoutes = require('./src/routes/commentRoutes')
+    const checkError = require('./src/middleware/errorMiddleware')
 
     dotenv.config()
     connectDB()
@@ -26,7 +27,10 @@
         res.json({message: 'IssueFlow API is running'})
     })
 
+    app.use(checkError)
+
     const PORT = process.env.PORT
     app.listen(PORT, () => {
         console.log(`Server is running on ${PORT}`)
     })
+
