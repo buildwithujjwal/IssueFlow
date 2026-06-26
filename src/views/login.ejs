@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IssueFlow - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #4f46e5;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4338ca;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .footer a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+
+        <h1>IssueFlow</h1>
+        <p>Sign in to your account</p>
+
+        <% if (error) { %>
+            <div class="error"><%= error %></div>
+        <% } %>
+
+
+        <form>
+
+            <label>Email</label>
+            <input type="email" name="email" required />
+
+            <label>Password</label>
+            <input type="password" name="password" required />
+
+            <button type="submit">Sign In</button>
+
+        </form>
+
+        <div class="footer">
+            Don't have an account? <a href="/auth/register">Register</a>
+        </div>
+
+    </div>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', async function(e) {
+        e.preventDefault()
+
+        const email = document.querySelector('input[name="email"]').value
+        const password = document.querySelector('input[name="password"]').value
+
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+            let errorDiv = document.querySelector('.error')
+
+            if (!errorDiv) {
+                errorDiv = document.createElement('div')
+                errorDiv.className = 'error'
+                document.querySelector('form').prepend(errorDiv)
+            }
+
+            errorDiv.textContent = data.message || 'Invalid credentials'
+        } else {
+            document.cookie = `token=${data.token}; path=/`
+            window.location.href = '/dashboard'
+            }   
+        })
+    </script>
+
+</body>
+</html>

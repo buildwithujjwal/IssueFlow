@@ -25,7 +25,7 @@ const registerUser = async (req, res, next) => {
         await newUser.save()
         
         // generating jwt tokens
-        const token = jwt.sign({id: newUser.id, role: newUser.role}, process.env.JWT_SECRET_KEY, {expiresIn: '7d'})
+        const token = jwt.sign({id: newUser.id, role: newUser.role, name: newUser.name}, process.env.JWT_SECRET_KEY, {expiresIn: '7d'})
 
         //sending response back to user
         return res.status(201).json({ token, name: newUser.name, email: newUser.email, role: newUser.role })
@@ -49,7 +49,7 @@ const loginUser = async (req, res, next) => {
         if(!passwordMatch) return res.status(401).json({ message: "Invalid credentials" });
 
         // generating jwt token
-        const token = jwt.sign({id: user.id, role: user.role}, process.env.JWT_SECRET_KEY, {expiresIn: '7d'})
+        const token = jwt.sign({id: user.id, role: user.role, name: user.name}, process.env.JWT_SECRET_KEY, {expiresIn: '7d'})
 
         // sending the response back
         return res.json({ token, name: user.name, email: user.email, role: user.role })
