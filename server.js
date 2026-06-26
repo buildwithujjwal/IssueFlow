@@ -4,16 +4,23 @@
     const authRoutes = require('./src/routes/authRoutes')
     const projectRoutes = require('./src/routes/projectRoutes')
     const issueRoutes = require('./src/routes/issueRoutes')
+    const commentRoutes = require('./src/routes/commentRoutes')
 
     dotenv.config()
     connectDB()
 
     const app = express()
     app.use(express.json()) 
+
     app.use('/api/auth', authRoutes)
+
     app.use('/api/projects', projectRoutes)
+
     app.use('/api/projects', issueRoutes)    
     app.use('/api/issues', issueRoutes) 
+
+    app.use('/api/issues', commentRoutes)
+    app.use('/api/comments', commentRoutes)
 
     app.get('/', (req, res) => {
         res.json({message: 'IssueFlow API is running'})
