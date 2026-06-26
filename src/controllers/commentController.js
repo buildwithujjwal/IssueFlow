@@ -14,7 +14,7 @@ const addComment = async (req, res, next) => {
 
 const getCommentsByIssue = async (req, res, next) => {
     try{
-        const Comments = await Comment.find({issue: req.params.id})  
+        const Comments = await Comment.find({issue: req.params.id}).populate('author')
         if(Comments.length == 0) return res.status(404).json({message: 'No Comment Found'})
         return res.status(200).json(Comments)
     }

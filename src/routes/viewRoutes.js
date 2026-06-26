@@ -16,4 +16,12 @@ router.get('/dashboard', checkToken, (req, res) => {
 }
 )
 
+router.get('/projects/:id', checkToken, (req, res) => {
+    res.render('project', {user: req.user})
+})
+
+router.get('/issues/:id', checkToken, (req, res)=> {
+    res.render('issueDetail', {user: req.user})
+})
+
 module.exports = router

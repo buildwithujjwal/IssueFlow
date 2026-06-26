@@ -12,6 +12,17 @@ const createIssue = async (req, res, next) => {
     }
 }
 
+const getIssuebyId = async (req, res, next) => {
+    try{
+        const specificIssue = await Issue.findById(req.params.id)
+        if(!specificIssue) return res.status(404).json({message: 'Issue not found'})
+        return res.status(200).json(specificIssue)
+    }
+    catch(error){
+        next(error)
+    }
+}
+
 const getIssuesByProject = async (req, res, next) => {
     try{
 
@@ -54,4 +65,4 @@ const deleteIssue = async (req, res, next) => {
     }
 }
 
-module.exports = { createIssue, getIssuesByProject, updateIssue, deleteIssue }
+module.exports = { createIssue, getIssuebyId, getIssuesByProject, updateIssue, deleteIssue}

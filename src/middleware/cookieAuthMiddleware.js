@@ -4,8 +4,7 @@ const checkToken = async (req, res, next) => {
     try{
         const token = req.cookies.token;
         if(!token) return res.redirect('/auth/login')
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
-        console.log(decoded)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)   
         req.user = decoded
         next()
     }
