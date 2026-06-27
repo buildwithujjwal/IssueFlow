@@ -3,7 +3,7 @@ const Issue = require('../models/Issue')
 const createIssue = async (req, res, next) => {
     try{
         const {title, description, assignedTo, priority} = req.body
-        const newIssue = new Issue({title, description, project: req.params.id, createdBy: req.user._id, assignedTo, priority: priority})
+        const newIssue = new Issue({title, description, project: req.params.id, createdBy: req.user._id, assignedTo, priority: priority, attachment: req.file ? req.file.path : null})
         await newIssue.save()
         return res.status(201).json(newIssue)
     }

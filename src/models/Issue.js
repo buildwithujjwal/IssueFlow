@@ -33,6 +33,9 @@ const issueSchema = new mongoose.Schema({
         enum: ['low', 'medium', 'high'],
         default: 'medium',
     },
+    attachment: {
+        type: String
+    }
 }, {
     timestamps: true
 })

@@ -199,14 +199,24 @@
             color: #888;
             margin-top: 8px;
         }
+        .navbar {
+            background: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .navbar h1 {
+            font-size: 20px;
+            color: #1a1a2e;
+        }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <h1>IssueFlow</h1>
-        <a id="back-link" href="/dashboard">← Back</a>
-    </div>
+    <%- include('partials/navbar') %>
 
     <div class="container">
 
@@ -227,6 +237,8 @@
 
     <script>
         const currentUserId = '<%= user.id %>'
+
+        
 
         function getCookie(name) {
             const value = `; ${document.cookie}`
@@ -279,6 +291,16 @@
                             </select>
                             <span class="badge ${issue.priority}">${issue.priority}</span>
                         </div>
+
+                        ${issue.attachment ? `
+                            <div style="margin-top:12px;">
+                                <a href="/${issue.attachment}" target="_blank" style="font-size:13px; color:#4f46e5; font-weight:600; text-decoration:none;">
+                                📎 View Attachment
+                                </a>
+                            </div>
+                            ` : ''
+                        }
+
                     </div>
                     ${isAuthor ? `<button class="edit-btn" onclick="toggleEditForm()">Edit Issue</button>` : ''}
                 </div>
@@ -379,6 +401,11 @@
 
         loadIssue()
         loadComments()
+
+        function logout() {
+            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+            window.location.href = '/auth/login'
+        }
     </script>
 
 </body>

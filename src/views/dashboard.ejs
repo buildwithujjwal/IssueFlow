@@ -89,14 +89,24 @@
             margin-top: 60px;
             font-size: 15px;
         }
+        .navbar {
+            background: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .navbar h1 {
+            font-size: 20px;
+            color: #1a1a2e;
+        }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <h1>IssueFlow</h1>
-        <span>Welcome, <%= user.name %></span>
-    </div>
+    <%- include('partials/navbar') %>
 
     <div class="container">
 
@@ -146,6 +156,11 @@
         }
 
         loadProjects()
+
+        function logout() {
+            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+            window.location.href = '/auth/login'
+        }
     </script>
 
 </body>

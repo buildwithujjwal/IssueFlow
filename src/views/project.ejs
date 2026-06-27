@@ -171,14 +171,24 @@
             margin-top: 60px;
             font-size: 15px;
         }
+        .navbar {
+            background: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .navbar h1 {
+            font-size: 20px;
+            color: #1a1a2e;
+        }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <h1>IssueFlow</h1>
-        <a href="/dashboard">← Back to Projects</a>
-    </div>
+    <%- include('partials/navbar') %>
 
     <div class="container">
 
@@ -203,6 +213,9 @@
                 <option value="medium" selected>Medium</option>
                 <option value="high">High</option>
             </select>
+
+            <label>Attachment (optional)</label>
+            <input type="file" id="issue-file" style="width:100%; padding:10px 14px; border:1px solid #ddd; border-radius:8px; font-size:14px; margin-bottom:16px; outline:none;" />
 
             <button class="btn" onclick="createIssue()">Create Issue</button>
 
@@ -231,21 +244,28 @@
             const title = document.getElementById('issue-title').value
             const description = document.getElementById('issue-desc').value
             const priority = document.getElementById('issue-priority').value
+            const file = document.getElementById('issue-file').files[0]
 
             if (!title.trim()) return
+
+            const formData = new FormData()
+            formData.append('title', title)
+            formData.append('description', description)
+            formData.append('priority', priority)
+            if (file) formData.append('attachment', file)
 
             await fetch(`/api/projects/${projectId}/issues`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ title, description, priority })
+                body: formData
             })
 
             document.getElementById('issue-title').value = ''
             document.getElementById('issue-desc').value = ''
             document.getElementById('issue-priority').value = 'medium'
+            document.getElementById('issue-file').value = ''
             document.getElementById('issue-form').style.display = 'none'
 
             loadIssues()
@@ -295,6 +315,11 @@
 
         loadProject()
         loadIssues()
+
+        function logout() {
+            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+            window.location.href = '/auth/login'
+        }
     </script>
 
 </body>

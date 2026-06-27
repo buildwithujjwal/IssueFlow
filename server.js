@@ -34,6 +34,8 @@
 
     app.use('/', viewRoutes)
 
+    app.use('/src/uploads', express.static('src/uploads'))
+
     app.get('/', (req, res) => {
         res.json({message: 'IssueFlow API is running'})
     })
