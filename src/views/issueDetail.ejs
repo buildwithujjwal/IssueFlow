@@ -52,21 +52,10 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
 
-        .issue-header h2 {
-            font-size: 22px;
-            color: #1a1a2e;
-            margin-bottom: 10px;
-        }
-
-        .issue-header p {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 16px;
-        }
-
         .badges {
             display: flex;
             gap: 8px;
+            margin-top: 16px;
         }
 
         .badge {
@@ -150,11 +139,65 @@
             background: #4338ca;
         }
 
+        .edit-btn {
+            padding: 8px 16px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .edit-btn:hover {
+            background: #4338ca;
+        }
+
+        .edit-form {
+            display: none;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .edit-form label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .edit-form input,
+        .edit-form textarea,
+        .edit-form select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Segoe UI', sans-serif;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .edit-form textarea {
+            resize: vertical;
+        }
+
         .empty {
             text-align: center;
             color: #aaa;
             font-size: 14px;
             padding: 20px 0;
+        }
+
+        .issue-meta {
+            font-size: 13px;
+            color: #888;
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -183,6 +226,8 @@
     </div>
 
     <script>
+        const currentUserId = '<%= user.id %>'
+
         function getCookie(name) {
             const value = `; ${document.cookie}`
             const parts = value.split(`; ${name}=`)
@@ -191,6 +236,19 @@
 
         const token = getCookie('token')
         const issueId = window.location.pathname.split('/').pop()
+
+        async function updateStatus(newStatus) {
+            await fetch(`/api/issues/${issueId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+
+            loadIssue()
+        }
 
         async function loadIssue() {
             const response = await fetch(`/api/issues/${issueId}`, {
@@ -202,14 +260,78 @@
             const issue = await response.json()
 
             document.getElementById('back-link').href = `/projects/${issue.project}`
+
+            const isAuthor = issue.createdBy && issue.createdBy._id === currentUserId
+
+            const authorName = issue.createdBy ? issue.createdBy.name : 'Unknown'
+
             document.getElementById('issue-detail').innerHTML = `
-                <h2>${issue.title}</h2>
-                <p>${issue.description}</p>
-                <div class="badges">
-                    <span class="badge ${issue.status}">${issue.status}</span>
-                    <span class="badge ${issue.priority}">${issue.priority}</span>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <h2 style="font-size:22px; color:#1a1a2e;">${issue.title}</h2>
+                        <p style="font-size:14px; color:#666; margin-top:8px;">${issue.description}</p>
+                        <p class="issue-meta">Reported by <strong>${authorName}</strong></p>
+                        <div style="display:flex; align-items:center; gap:8px; margin-top:16px;">
+                            <select onchange="updateStatus(this.value)" style="padding:4px 12px; border:1px solid #ddd; border-radius:20px; font-size:12px; font-weight:600; outline:none; cursor:pointer; background:#f8f8f8; color:#333; appearance:none; -webkit-appearance:none;">
+                                <option value="open" ${issue.status === 'open' ? 'selected' : ''}>🔵 Open</option>
+                                <option value="in-progress" ${issue.status === 'in-progress' ? 'selected' : ''}>🟡 In Progress</option>
+                                <option value="resolved" ${issue.status === 'resolved' ? 'selected' : ''}>🟢 Resolved</option>
+                            </select>
+                            <span class="badge ${issue.priority}">${issue.priority}</span>
+                        </div>
+                    </div>
+                    ${isAuthor ? `<button class="edit-btn" onclick="toggleEditForm()">Edit Issue</button>` : ''}
+                </div>
+
+                <div class="edit-form" id="edit-form">
+
+                    <label>Title</label>
+                    <input id="edit-title" type="text" value="${issue.title}" />
+
+                    <label>Description</label>
+                    <textarea id="edit-desc" rows="3">${issue.description}</textarea>
+
+                    <label>Status</label>
+                    <select id="edit-status">
+                        <option value="open" ${issue.status === 'open' ? 'selected' : ''}>Open</option>
+                        <option value="in-progress" ${issue.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                        <option value="resolved" ${issue.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                    </select>
+
+                    <label>Priority</label>
+                    <select id="edit-priority">
+                        <option value="low" ${issue.priority === 'low' ? 'selected' : ''}>Low</option>
+                        <option value="medium" ${issue.priority === 'medium' ? 'selected' : ''}>Medium</option>
+                        <option value="high" ${issue.priority === 'high' ? 'selected' : ''}>High</option>
+                    </select>
+
+                    <button class="edit-btn" onclick="saveIssue()">Save Changes</button>
+
                 </div>
             `
+        }
+
+        function toggleEditForm() {
+            const form = document.getElementById('edit-form')
+            form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none'
+        }
+
+        async function saveIssue() {
+            const title = document.getElementById('edit-title').value
+            const description = document.getElementById('edit-desc').value
+            const status = document.getElementById('edit-status').value
+            const priority = document.getElementById('edit-priority').value
+
+            await fetch(`/api/issues/${issueId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ title, description, status, priority })
+            })
+
+            loadIssue()
         }
 
         async function loadComments() {

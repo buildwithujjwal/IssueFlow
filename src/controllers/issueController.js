@@ -2,8 +2,8 @@ const Issue = require('../models/Issue')
 
 const createIssue = async (req, res, next) => {
     try{
-        const {title, description, assignedTo} = req.body
-        const newIssue = new Issue({title, description, project: req.params.id, createdBy: req.user._id, assignedTo})
+        const {title, description, assignedTo, priority} = req.body
+        const newIssue = new Issue({title, description, project: req.params.id, createdBy: req.user._id, assignedTo, priority: priority})
         await newIssue.save()
         return res.status(201).json(newIssue)
     }
@@ -14,7 +14,7 @@ const createIssue = async (req, res, next) => {
 
 const getIssuebyId = async (req, res, next) => {
     try{
-        const specificIssue = await Issue.findById(req.params.id)
+        const specificIssue = await Issue.findById(req.params.id).populate('createdBy', 'name')
         if(!specificIssue) return res.status(404).json({message: 'Issue not found'})
         return res.status(200).json(specificIssue)
     }
